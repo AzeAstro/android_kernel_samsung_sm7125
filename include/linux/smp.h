@@ -20,7 +20,7 @@ struct __call_single_data {
 	smp_call_func_t func;
 	void *info;
 	unsigned int flags;
-};
+} __attribute__((aligned(32)));
 
 /* Use __aligned() to avoid to use 2 cache lines for 1 csd */
 typedef struct __call_single_data call_single_data_t

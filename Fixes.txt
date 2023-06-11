@@ -1,0 +1,30 @@
+Warnings/Errors:
+
+
+1:
+drivers/soc/qcom/icnss.c:3834:2: warning: 'sprintf' will always overflow; destination buffer has size 2, but format string expands to at least 4 [-Wfortify-source]
+        sprintf(antbuffer, "%c%c\n", (gpio_get_value(wifi_cable1) > 0) ? 'D' : 'E' , (gpio_get_value(wifi_cable2) > 0) ? 'D' : 'E');
+        ^
+1 warning generated.
+
+
+
+2:
+block/blk-mq.c:567:44: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(ctx->cpu, &rq->csd);
+
+
+
+
+
+Fixes:
+
+
+1: File - /drivers/soc/qcom/icnss.c
+   line 3810
+   change `char antbuffer[2] = {0};` to `char antbuffer[4] = {0};` in function `show_wificableinfo`
+
+
+2: File - /include/linux/smp.h
+   line 23 
+   change `};` to `} __attribute__((aligned(32)));` at struct `__call_single_data `
