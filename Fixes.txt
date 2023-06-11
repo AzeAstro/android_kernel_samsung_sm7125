@@ -16,6 +16,12 @@ block/blk-mq.c:567:44: warning: passing 8-byte aligned argument to 32-byte align
 
 
 
+3:
+mm/sec_mm/lowfile_detect.c:49:21: warning: ordered comparison between pointer and integer ('unsigned long (*)(void)' and 'int')
+        if (totalram_pages > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))
+            ~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 
 Fixes:
 
@@ -28,3 +34,16 @@ Fixes:
 2: File - /include/linux/smp.h
    line 23 
    change `};` to `} __attribute__((aligned(32)));` at struct `__call_single_data `
+
+
+3: File - /mm/sec_mm/lowdile_detect.c
+   1) line 16-18
+   change ```#define MIN_FILE_SIZE_HIGH    300
+             #define MIN_FILE_SIZE_LOW    200
+             #define MIN_FILE_SIZE_THR_GB    3```
+   to ```#define MIN_FILE_SIZE_HIGH    300UL
+         #define MIN_FILE_SIZE_LOW    200UL
+         #define MIN_FILE_SIZE_THR_GB    3UL```
+
+   2) line 49
+   change `if (totalram_pages > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))` to `if (totalram_pages() > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))`

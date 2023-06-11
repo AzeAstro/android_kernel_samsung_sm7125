@@ -13,9 +13,9 @@
 
 static DEFINE_RATELIMIT_STATE(mm_debug_rs, 30 * HZ, 1);
 
-#define MIN_FILE_SIZE_HIGH	300
-#define MIN_FILE_SIZE_LOW	200
-#define MIN_FILE_SIZE_THR_GB	3
+#define MIN_FILE_SIZE_HIGH    300UL
+#define MIN_FILE_SIZE_LOW    200UL
+#define MIN_FILE_SIZE_THR_GB    3UL
 static unsigned long min_file;
 
 static unsigned long lowfile_count(struct shrinker *s,
@@ -46,7 +46,7 @@ static struct shrinker mm_debug_shrinker = {
 
 void init_lowfile_detect(void)
 {
-	if (totalram_pages > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))
+	if (totalram_pages() > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))
 		min_file = MB_TO_PAGES(MIN_FILE_SIZE_HIGH);
 	else
 		min_file = MB_TO_PAGES(MIN_FILE_SIZE_LOW);
