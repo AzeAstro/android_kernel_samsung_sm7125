@@ -47,3 +47,9 @@ Fixes:
 
    2) line 49
    change `if (totalram_pages > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))` to `if (totalram_pages() > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))`
+   
+   
+   
+  
+  
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1656816.html
