@@ -431,7 +431,7 @@ static void mt7601u_free_rx(struct mt7601u_dev *dev)
 	int i;
 
 	for (i = 0; i < dev->rx_q.entries; i++) {
-		put_page(dev->rx_q.e[i].p);
+		__free_pages(dev->rx_q.e[i].p, MT_RX_ORDER);
 		usb_free_urb(dev->rx_q.e[i].urb);
 	}
 }
