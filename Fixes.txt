@@ -23,11 +23,31 @@ mm/sec_mm/lowfile_detect.c:49:21: warning: ordered comparison between pointer an
 
 
 
-
 4:
 Kernel crash with call stack:
 pc : string+0x3c/0x8c
 lr : vsnprintf+0x440/0x67c
+
+
+
+5:
+drivers/net/wireless/realtek/rtl8812au/include/rtw_bt_mp.h:22:9: note: previous '#pragma pack' directive that modifies alignment is here
+#pragma pack(1)
+
+
+
+
+6:
+drivers/net/wireless/realtek/rtl8812au/core/rtw_ap.c:4441:36: warning: address of array 'dvobj->padapters' will always evaluate to 'true' [-Wpointer-bool-conversion]
+                if (!(ifbmp & BIT(i)) || !dvobj->padapters)
+                                         ~~~~~~~~^~~~~~~~~
+
+
+7:
+drivers/net/wireless/realtek/rtl8812au/core/rtw_mlme_ext.c:8980:11: warning: address of array 'sec->owe_ie' will always evaluate to 'true' [-Wpointer-bool-conversion]
+        if (sec->owe_ie && sec->owe_ie_len > 0) {
+            ~~~~~^~~~~~ ~~
+
 
 
 Fixes:
@@ -68,3 +88,26 @@ Fixes:
     5- string function itself.
    
    2) Get errname.h from original linux kernel repo and add it to include/linux.
+
+
+
+
+
+5: File - drivers/net/wireless/realtek/rtl8812au/include/rtw_bt_mp.h
+   Replace `#pragma pack(1)` with `#pragma pop`
+
+
+
+
+
+6: File - drivers/net/wireless/realtek/rtl8812au/core/rtw_ap.c
+   Line 4441 and 4446
+   Replace `!dvobj->padapters` with `dvobj->padapters != NULL`
+
+
+
+
+
+7: File - drivers/net/wireless/realtek/rtl8812au/core/rtw_mlme_ext.c
+   Line 8980
+   Replace `sec->owe_ie` with `sec->owe_ie != NULL `
