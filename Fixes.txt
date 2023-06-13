@@ -23,12 +23,19 @@ mm/sec_mm/lowfile_detect.c:49:21: warning: ordered comparison between pointer an
 
 
 
+
+4:
+Kernel crash with call stack:
+pc : string+0x3c/0x8c
+lr : vsnprintf+0x440/0x67c
+
+
 Fixes:
 
 
 1: File - /drivers/soc/qcom/icnss.c
    line 3810
-   change `char antbuffer[2] = {0};` to `char antbuffer[4] = {0};` in function `show_wificableinfo`
+   change `char antbuffer[2] = {0};` to `char antbuffer[4] = {0};` in function `show_wificableinfo` to prevent buffer overflow
 
 
 2: File - /include/linux/smp.h
@@ -46,4 +53,20 @@ Fixes:
          #define MIN_FILE_SIZE_THR_GB    3UL```
 
    2) line 49
-   change `if (totalram_pages > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))` to `if (totalram_pages() > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))`
+   change `if (totalram_pages > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))` to `if (totalram_pages() > GB_TO_PAGES(MIN_FILE_SIZE_THR_GB))`.
+   `totalram_pages` is a function.
+
+
+
+4: File - /lib/vsprintf.c
+   1)Replace `string` and pointer checkers with the one that is in oringinal linux kernel's vsprintf.c.
+    Those functions are:
+    1 - string_nocheck
+    2 - error_string
+    3 - check_pointer_msg
+    4 - check_pointer
+    5- string function itself.
+   
+   2) Get errname.h from original linux kernel repo and add it to include/linux.
+
+

@@ -27,6 +27,7 @@
 #include <linux/kallsyms.h>
 #include <linux/math64.h>
 #include <linux/uaccess.h>
+#include <linux/errname.h>
 #include <linux/ioport.h>
 #include <linux/dcache.h>
 #include <linux/cred.h>
@@ -582,14 +583,12 @@ char *widen_string(char *buf, int n, char *end, struct printf_spec spec)
 	return buf;
 }
 
-static noinline_for_stack
-char *string(char *buf, char *end, const char *s, struct printf_spec spec)
+/* Handle string from a well known address. */
+static char *string_nocheck(char *buf, char *end, const char *s,
+			    struct printf_spec spec)
 {
 	int len = 0;
-	size_t lim = spec.precision;
-
-	if ((unsigned long)s < PAGE_SIZE)
-		s = "(null)";
+	int lim = spec.precision;
 
 	while (lim--) {
 		char c = *s++;
@@ -601,6 +600,62 @@ char *string(char *buf, char *end, const char *s, struct printf_spec spec)
 		++len;
 	}
 	return widen_string(buf, len, end, spec);
+}
+
+
+/* Be careful: error messages must fit into the given buffer. */
+static char *error_string(char *buf, char *end, const char *s,
+			  struct printf_spec spec)
+{
+	/*
+	 * Hard limit to avoid a completely insane messages. It actually
+	 * works pretty well because most error messages are in
+	 * the many pointer format modifiers.
+	 */
+	if (spec.precision == -1)
+		spec.precision = 2 * sizeof(void *);
+
+	return string_nocheck(buf, end, s, spec);
+}
+
+/*
+ * Do not call any complex external code here. Nested printk()/vsprintf()
+ * might cause infinite loops. Failures might break printk() and would
+ * be hard to debug.
+ */
+static const char *check_pointer_msg(const void *ptr)
+{
+	if (!ptr)
+		return "(null)";
+
+	if ((unsigned long)ptr < PAGE_SIZE || IS_ERR_VALUE(ptr))
+		return "(efault)";
+
+	return NULL;
+}
+
+static int check_pointer(char **buf, char *end, const void *ptr,
+			 struct printf_spec spec)
+{
+	const char *err_msg;
+
+	err_msg = check_pointer_msg(ptr);
+	if (err_msg) {
+		*buf = error_string(*buf, end, err_msg, spec);
+		return -EFAULT;
+	}
+
+	return 0;
+}
+
+static noinline_for_stack
+char *string(char *buf, char *end, const char *s,
+	     struct printf_spec spec)
+{
+	if (check_pointer(&buf, end, s, spec))
+		return buf;
+
+	return string_nocheck(buf, end, s, spec);
 }
 
 static noinline_for_stack
