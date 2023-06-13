@@ -68,5 +68,3 @@ Fixes:
     5- string function itself.
    
    2) Get errname.h from original linux kernel repo and add it to include/linux.
-
-
