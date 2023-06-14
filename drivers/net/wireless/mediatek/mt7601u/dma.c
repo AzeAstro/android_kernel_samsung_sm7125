@@ -515,8 +515,8 @@ int mt7601u_dma_init(struct mt7601u_dev *dev)
 {
 	int ret;
 
-	tasklet_setup(&dev->tx_tasklet, mt7601u_tx_tasklet);
-	tasklet_setup(&dev->rx_tasklet, mt7601u_rx_tasklet);
+	tasklet_init(&dev->tx_tasklet, mt7601u_tx_tasklet, (unsigned long) dev);
+	tasklet_init(&dev->rx_tasklet, mt7601u_rx_tasklet, (unsigned long) dev);
 
 	ret = mt7601u_alloc_tx(dev);
 	if (ret)

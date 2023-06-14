@@ -575,16 +575,6 @@ static __latent_entropy void tasklet_hi_action(struct softirq_action *a)
 	}
 }
 
-void tasklet_setup(struct tasklet_struct *t,
-		   void (*)(struct tasklet_struct *))
-{
-	t->next = NULL;
-	t->state = 0;
-	atomic_set(&t->count, 0);
-	t->data = 0;
-}
-EXPORT_SYMBOL(tasklet_setup);
-
 
 void tasklet_init(struct tasklet_struct *t,
 		  void (*func)(unsigned long), unsigned long data)
